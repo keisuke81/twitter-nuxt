@@ -5,13 +5,13 @@
           <h1>新規登録</h1>
           <div class="input_main">
             <div>
-              <input type="text" v-model="name" placeholder="ユーザーネーム" class="input" required />
+              <input type="text" v-model="newName" placeholder="ユーザーネーム" class="input" required />
             </div>    
             <div>
-              <input type="email" v-model="email" placeholder="メールアドレス" class="input" required />
+              <input type="email" v-model="newEmail" placeholder="メールアドレス" class="input" required />
             </div>
             <div>
-              <input type="password" v-model="password" placeholder="パスワード" class="input" required />
+              <input type="password" v-model="newPassword" placeholder="パスワード" class="input" required />
             </div>
             <nuxt-link to="/login">
               <button @click="register" >新規登録</button>
@@ -26,39 +26,36 @@ import firebase from '~/plugins/firebase'
 export default {
   data(){
     return {
-      name: null,
-      email: null,
-      password: null,
+      newName: "",
+      newEmail: "",
+      newPassword: "",
     }
   },
   methods: {
-    register() {
-      if(!this.email || !this.password){
-        alert('メールアドレス、パスワードのいずれかが入力されていません。')
-        return
-      }
-      firebase
-      .auth()
-      .createUserWithEmailAndPassword(this.email, this.password)
-      .then((data)=> {
-        data.user.sendEmailVerification().then(() =>{
-          this.$router.replace('/login')
-        })
-      })
-
-      .catch((error) =>{
-        switch(error.code){
-          case 'auth/invalid-email':
-            alert('メールアドレスの形式が違います。')
-            break
-          case 'auth/weak-password':
-            alert('パスワードは6文字以上で入力してください。')
-            break
-        }
-      })
+    async getUserLists() {
+      const userData = await this.$axios.get(
+        "http://127.0.0.1:8000/api/user"
+      );
+      this.userLists = userData.data.data;
+    },
+    async register(){
+      const sendData = {
+        name: this.newName,
+        email: this.newEmail,
+        password: this.newPassword,
+      };
+      await this.$axios.post("http://127.0.0.1:8000/api/user", sendData);
+      this.getUserLists();
+    },
+    async deleteUserLists(id){
+      await this.$axios.delete("http://127.0.0.1:8000/api/user" + id);
+      this.getUserLists;
     },
   },
-}
+  created(){
+    this.getUserLists();
+  },
+};
 </script>
 <style scoped>
  .register{
