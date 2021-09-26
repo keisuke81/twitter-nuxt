@@ -36,11 +36,11 @@
             <p>tweet</p>
           </div>
         </li>
-        <li class="tweetlist" v-for="tweet in tweets" :key="tweet.id">
+        <li class="tweetlist" v-for="tweetList in tweetLists" :key="tweet_id">
           <p>{{name}}</p>
           <img src="../img/heart.png" alt="">
-          <p>0</p>
-          <img src="../img/cross.png" alt="">
+          <p>{{countLike}}</p>
+          <img src="../img/cross.png" alt="" @click="deleteTweet">
           <img src="../img/detail.png" alt="">
           <div>
             <p>{{tweetContent}}</p>
@@ -52,16 +52,36 @@
 </template>
 <script>
 export default{
-  async asyncData({$axios}){
-    //取得先LaravelのURL
-    const url ="http://127.0.0.1:8000/"
-    //リクエスト(Get)
-    const response = await app.$axios.$get
-    (http://127.0.0.1:8000/) ;
-    //リクエスト(Post)
-    const response = await $axios.$post
-  };
-}
+  data(){
+    return{
+      name: "",
+      tweetContent: "",
+    };
+  },
+  methods:{
+    async gettweetContent(){
+      const tweetData = await this.$axios.get(
+        "http://127.0.0.1:8000/api/tweet/"
+      );
+      this.tweetLists = tweetData.data.data;
+    },
+    async addTweet(){
+      const sendData = {
+        name: this.name,
+        tweetContent: this.tweetContent
+      };
+      await this.$axios.post("http://127.0.0.1:8000/api/tweet", sendData);
+      this.gettweetContent();
+    },
+    async deleteTweet(id){
+      await this.$axios.delete("http://127.0.0.1:8000/api/tweet" + id);
+      this.gettweetContent
+    },
+  },
+  created(){
+    this.gettweetContent();
+  },
+};
 </script>
 <style scoped>.sidebar {
   background-color: black;
