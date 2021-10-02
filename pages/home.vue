@@ -56,6 +56,7 @@ export default{
     return{
       name: "",
       tweetContent: "",
+      tweetLists:[]
     };
   },
   methods:{
